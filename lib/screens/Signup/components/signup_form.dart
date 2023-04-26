@@ -94,7 +94,7 @@ class _SignUpFormState extends State<SignUpForm> {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(
                     builder: (context) {
-                      return DataTableExample();
+                      return StudentEntryPage();
                     },
                   ),
                 );

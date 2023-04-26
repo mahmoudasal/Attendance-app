@@ -1,6 +1,6 @@
 import 'package:el_zareef_app/screens/Welcome/welcome_screen.dart';
+import 'package:el_zareef_app/screens/navbar.dart';
 import 'package:flutter/material.dart';
-
 import 'constants.dart';
 
 void main() => runApp(const MyApp());
@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Auth',
+
       theme: ThemeData(
         primaryColor: kPrimaryColor,
         scaffoldBackgroundColor: Colors.white,
@@ -38,7 +38,13 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: WelcomeScreen(),
+      initialRoute: "WelcomeScreen",
+      routes: {
+        "WelcomeScreen": (context) => WelcomeScreen(),
+        "Navpage": (context) => NavigatorScreen()
+      },
+      // home: WelcomeScreen(),
+      // // home: StudentEntryPage(),
     );
   }
 }

@@ -4,6 +4,7 @@ import '../../../components/already_have_an_account_acheck.dart';
 import '../../../constants.dart';
 import '../../Signup/signup_screen.dart';
 import '../../attendance.dart';
+import '../../navbar.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({
@@ -96,7 +97,7 @@ class _LoginFormState extends State<LoginForm> {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (context) {
-                        return DataTableExample();
+                        return NavigatorScreen();
                       },
                     ),
                   );
