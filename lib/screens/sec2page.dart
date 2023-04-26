@@ -1,14 +1,60 @@
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:flutter/material.dart';
 
 class sec2Page extends StatelessWidget {
-  const sec2Page({super.key});
-
+  sec2Page({super.key});
+  final List<Map<String, dynamic>> _sec2data = [];
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Text("hello sec 2"),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Color(0xFF6F35A5),
+            centerTitle: true,
+            title: Text('الصف الثاني الثانوي',
+              style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+            ),
+          ),
+          body: Center(
+            child: Column(
+              children: [
+                DataTable(
+                  columns: [
+                    DataColumn(label: Text('الاسم')),
+                    DataColumn(label: Text('رقم الطالب')),
+                    DataColumn(label: Text('رقم ولي الامر')),
+                    DataColumn(label: Text('المجموعه')),
+                    DataColumn(label: Text('السنه الدراسيه')),
+                    DataColumn(label: Text('')),
+                  ],
+                  rows: _sec2data
+                      .asMap()
+                      .map(
+                        (index, data) => MapEntry(
+                          index,
+                          DataRow(
+                            cells: [
+                              DataCell(Text(data['name'])),
+                              DataCell(Text(data['sphone'].toString())),
+                              DataCell(Text(data['phone'].toString())),
+                              DataCell(Text(data['classs'])),
+                              DataCell(Text(data['yearOfStudy'])),
+                              DataCell(
+                                IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () {},
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      .values
+                      .toList(),
+                ),
+              ],
+            ),
+          )),
     );
   }
 }

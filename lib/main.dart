@@ -1,4 +1,5 @@
 import 'package:el_zareef_app/screens/Welcome/welcome_screen.dart';
+import 'package:el_zareef_app/screens/attendance.dart';
 import 'package:el_zareef_app/screens/navbar.dart';
 import 'package:flutter/material.dart';
 import 'constants.dart';
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: "WelcomeScreen",
       routes: {
-        "WelcomeScreen": (context) => WelcomeScreen(),
+        "WelcomeScreen": (context) => NavigatorScreen(),
         "Navpage": (context) => NavigatorScreen()
       },
       // home: WelcomeScreen(),

@@ -57,11 +57,6 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
           'classs': classs,
           'yearOfStudy': yearOfStudy
         });
-        _nameController.clear();
-        _phoneController.clear();
-        _sphoneController.clear();
-        _classsController.clear();
-        _yearOfStudyController.clear();
       },
     );
   }
@@ -73,7 +68,11 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(0xFF6F35A5),
-          title: Text('تسجيل الطلبه'),
+          centerTitle: true,
+          title: Text(
+            'تسجيل الطلبه',
+            style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+          ),
         ),
         body: Form(
           key: _formKey,
@@ -108,7 +107,6 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
                   SizedBox(
                     height: 20,
                   ),
-
                   SizedBox(
                     height: 70,
                     width: 750,
@@ -157,7 +155,7 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
                     width: 300,
                     child: DropdownButtonFormField<String>(
                       validator: (newValue) => newValue == null ? 'الرجاء اختيار السنه الدراسيه' : null,
-                      hint: Text("         السنه الدراسيه             "),
+                      hint: Text("         السنه الدراسيه          "),
                       onChanged: (String? newValue) {
                         setState(() {
                           firstDropdownValue = newValue!;
@@ -179,12 +177,11 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
                   SizedBox(
                     height: 25,
                   ),
-                  // لسته المواعيد
                   SizedBox(
                     width: 300,
                     child: DropdownButtonFormField<String>(
                       validator: (value1) => value1 == null ? 'الرجاء اختيار المجموعه' : null,
-                      hint: Text("     ادخل المجموعه         "),
+                      hint: Text("         ادخل المجموعه         "),
                       onChanged: (String? value1) {
                         setState(() {
                           selectedItem1 = value1; // update the selected item value
@@ -198,7 +195,6 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
                       }).toList(),
                     ),
                   ),
-
                   SizedBox(
                     height: 25,
                   ),
@@ -208,6 +204,10 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           _addData();
+                          _formKey.currentState!.reset();
+                          _nameController.clear();
+                          _phoneController.clear();
+                          _sphoneController.clear();
                         }
                       },
                       child: Text('Add Data'),
@@ -229,11 +229,11 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
                             index,
                             DataRow(
                               cells: [
-                                DataCell(Text(data['name'])),
+                                DataCell(Text(data['name'].toString())),
                                 DataCell(Text(data['sphone'].toString())),
                                 DataCell(Text(data['phone'].toString())),
-                                DataCell(Text(data['classs'])),
-                                DataCell(Text(data['yearOfStudy'])),
+                                DataCell(Text(data['classs'].toString())),
+                                DataCell(Text(data['yearOfStudy'].toString())),
                                 DataCell(
                                   IconButton(
                                     icon: Icon(Icons.delete),
