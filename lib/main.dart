@@ -1,15 +1,15 @@
-import 'package:el_zareef_app/screens/Welcome/welcome_screen.dart';
-import 'package:el_zareef_app/screens/attendance.dart';
 import 'package:el_zareef_app/screens/navbar.dart';
 import 'package:flutter/material.dart';
+
 import 'constants.dart';
 
-void main() => runApp(const MyApp());
+void main() async {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

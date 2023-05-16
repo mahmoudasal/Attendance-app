@@ -16,7 +16,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentIndex = 0;
   List<Widget> listOfScreens = [
     StudentEntryPage(),
-    sec1Page(),
+    sec1page(),
     sec2Page(),
     sec3Page(),
   ];
