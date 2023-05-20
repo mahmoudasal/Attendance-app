@@ -9,7 +9,7 @@ class StudentEntryPage extends StatefulWidget {
 
 class _StudentEntryPageState extends State<StudentEntryPage> {
   final List<Map<String, dynamic>> _data = [];
-  String firstDropdownValue = '          الصف الاول الثانوي         ';
+  String firstDropdownValue = '     الصف الاول الثانوي     ';
   String secondDropdownValue = '         سبت  و  ثلاثاء  الساعه 1:30         ';
   String? selectedItem;
   String? selectedItem1;
@@ -19,17 +19,17 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
   final _dropdownController = TextEditingController();
 
   Map<String, List<String>> _choices = {
-    '          الصف الاول الثانوي         ': [
+    '     الصف الاول الثانوي     ': [
       '         سبت  و  ثلاثاء  الساعه  1:30         ',
       '         سبت  و  ثلاثاء  الساعه  2:30         ',
       '         سبت  و  ثلاثاء  الساعه 3:30         '
     ],
-    '          الصف الثاني الثانوي          ': [
+    '     الصف الثاني الثانوي     ': [
       '         سبت  و  ثلاثاء  الساعه  4:30         ',
       '         سبت  و  ثلاثاء  الساعه  5:30         ',
       '         سبت  و  ثلاثاء  الساعه 6:30         '
     ],
-    '          الصف الثالث الثانوي          ': [
+    '     الصف الثالث الثانوي     ': [
       '         سبت  و  ثلاثاء  الساعه  7:30         ',
       '         سبت  و  ثلاثاء  الساعه  8:30         ',
       '         سبت  و  ثلاثاء  الساعه 9:30         '
@@ -46,13 +46,32 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
 
-    preferences.setString("name_$timestamp", name);
-    preferences.setString("gphone_$timestamp", gphone);
-    preferences.setString("sphone_$timestamp", sphone);
-    preferences.setString("classs_$timestamp", classs);
-    preferences.setString("yearOfStudy_$timestamp", yearOfStudy);
-    preferences.setString("dropdownValue1_$timestamp", firstDropdownValue);
-    preferences.setString("dropdownValue2_$timestamp", selectedItem1 ?? ''); // Update the selected value
+    switch (firstDropdownValue) {
+      case '     الصف الاول الثانوي     ':
+        preferences.setString("name_$timestamp", name);
+        preferences.setString("gphone_$timestamp", gphone);
+        preferences.setString("sphone_$timestamp", sphone);
+        preferences.setString("dropdownValue1_$timestamp", firstDropdownValue);
+        preferences.setString("dropdownValue2_$timestamp", selectedItem1 ?? ''); // Update the selected value
+
+        break;
+      case '     الصف الثاني الثانوي     ':
+        preferences.setString("s2_name_$timestamp", name);
+        preferences.setString("s2_gphone_$timestamp", gphone);
+        preferences.setString("s2_sphone_$timestamp", sphone);
+        preferences.setString("s2_dropdownValue1_$timestamp", firstDropdownValue);
+        preferences.setString("s2_dropdownValue2_$timestamp", selectedItem1 ?? ''); // Update the selected value
+
+        break;
+      case '     الصف الثالث الثانوي     ':
+        preferences.setString("s3_name_$timestamp", name);
+        preferences.setString("s3_gphone_$timestamp", gphone);
+        preferences.setString("s3_sphone_$timestamp", sphone);
+        preferences.setString("s3_dropdownValue1_$timestamp", firstDropdownValue);
+        preferences.setString("s3_dropdownValue2_$timestamp", selectedItem1 ?? ''); // Update the selected value
+
+        break;
+    }
   }
 
   @override
@@ -152,9 +171,9 @@ class _StudentEntryPageState extends State<StudentEntryPage> {
                       });
                     },
                     items: <String>[
-                      '          الصف الاول الثانوي         ',
-                      '          الصف الثاني الثانوي          ',
-                      '          الصف الثالث الثانوي          '
+                      '     الصف الاول الثانوي     ',
+                      '     الصف الثاني الثانوي     ',
+                      '     الصف الثالث الثانوي     '
                     ].map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,

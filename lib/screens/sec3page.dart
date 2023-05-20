@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class sec3Page extends StatefulWidget {
+class S3 extends StatefulWidget {
   @override
-  _sec3PageState createState() => _sec3PageState();
+  _S3State createState() => _S3State();
 }
 
-class _sec3PageState extends State<sec3Page> {
+class _S3State extends State<S3> {
   int? editingRowIndex;
 
   String newName = '';
@@ -44,13 +44,13 @@ class _sec3PageState extends State<sec3Page> {
                     List<DataRow> rows = [];
 
                     preferences.getKeys().forEach((key) {
-                      if (key.startsWith("name_")) {
-                        String timestamp = key.substring(5);
-                        String name = preferences.getString("name_$timestamp") ?? '';
-                        String gphone = preferences.getString("gphone_$timestamp") ?? '';
-                        String sphone = preferences.getString("sphone_$timestamp") ?? '';
-                        String dropdownValue2 = preferences.getString("dropdownValue1_$timestamp") ?? '';
-                        String dropdownValue1 = preferences.getString("dropdownValue2_$timestamp") ?? '';
+                      if (key.startsWith("s3_name_")) {
+                        String timestamp = key.substring(8);
+                        String name = preferences.getString("s3_name_$timestamp") ?? '';
+                        String gphone = preferences.getString("s3_gphone_$timestamp") ?? '';
+                        String sphone = preferences.getString("s3_sphone_$timestamp") ?? '';
+                        String dropdownValue2 = preferences.getString("s3_dropdownValue1_$timestamp") ?? '';
+                        String dropdownValue1 = preferences.getString("s3_dropdownValue2_$timestamp") ?? '';
 
                         rows.add(DataRow(cells: [
                           DataCell(Text(name)),
@@ -208,18 +208,18 @@ class _sec3PageState extends State<sec3Page> {
     // Implement the save functionality here
     // You can access the data using the provided timestamp and state variables
 
-    String name = newName.isNotEmpty ? newName : preferences.getString("name_$timestamp") ?? '';
-    String gphone = newGphone.isNotEmpty ? newGphone : preferences.getString("gphone_$timestamp") ?? '';
-    String sphone = newSphone.isNotEmpty ? newSphone : preferences.getString("sphone_$timestamp") ?? '';
-    String dropdownValue1 = newDropdownValue1.isNotEmpty ? newDropdownValue1 : preferences.getString("dropdownValue1_$timestamp") ?? '';
-    String dropdownValue2 = newDropdownValue2.isNotEmpty ? newDropdownValue2 : preferences.getString("dropdownValue2_$timestamp") ?? '';
+    String name = newName.isNotEmpty ? newName : preferences.getString("s3_name_$timestamp") ?? '';
+    String gphone = newGphone.isNotEmpty ? newGphone : preferences.getString("s3_gphone_$timestamp") ?? '';
+    String sphone = newSphone.isNotEmpty ? newSphone : preferences.getString("s3_sphone_$timestamp") ?? '';
+    String dropdownValue1 = newDropdownValue1.isNotEmpty ? newDropdownValue1 : preferences.getString("s3_dropdownValue1_$timestamp") ?? '';
+    String dropdownValue2 = newDropdownValue2.isNotEmpty ? newDropdownValue2 : preferences.getString("s3_dropdownValue2_$timestamp") ?? '';
     if (_formKeysec1.currentState!.validate()) {
       // Update the values in SharedPreferences
-      preferences.setString("name_$timestamp", name);
-      preferences.setString("gphone_$timestamp", gphone);
-      preferences.setString("sphone_$timestamp", sphone);
-      preferences.setString("dropdownValue1_$timestamp", dropdownValue1);
-      preferences.setString("dropdownValue2_$timestamp", dropdownValue2);
+      preferences.setString("s3_name_$timestamp", name);
+      preferences.setString("s3_gphone_$timestamp", gphone);
+      preferences.setString("s3_sphone_$timestamp", sphone);
+      preferences.setString("s3_dropdownValue1_$timestamp", dropdownValue1);
+      preferences.setString("s3_dropdownValue2_$timestamp", dropdownValue2);
 
       setState(() {
         editingRowIndex = null;
@@ -238,11 +238,11 @@ class _sec3PageState extends State<sec3Page> {
     // Implement the delete functionality here
     // You can access the data using the provided timestamp
 
-    preferences.remove("name_$timestamp");
-    preferences.remove("gphone_$timestamp");
-    preferences.remove("sphone_$timestamp");
-    preferences.remove("dropdownValue1_$timestamp");
-    preferences.remove("dropdownValue2_$timestamp");
+    preferences.remove("s3_name_$timestamp");
+    preferences.remove("s3_gphone_$timestamp");
+    preferences.remove("s3_sphone_$timestamp");
+    preferences.remove("s3_dropdownValue1_$timestamp");
+    preferences.remove("s3_dropdownValue2_$timestamp");
 
     setState(() {});
   }

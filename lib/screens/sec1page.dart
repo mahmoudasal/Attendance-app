@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class sec1page extends StatefulWidget {
+class S1 extends StatefulWidget {
   @override
-  _sec1pageState createState() => _sec1pageState();
+  _S1State createState() => _S1State();
 }
 
-class _sec1pageState extends State<sec1page> {
+class _S1State extends State<S1> {
   int? editingRowIndex;
 
   String newName = '';

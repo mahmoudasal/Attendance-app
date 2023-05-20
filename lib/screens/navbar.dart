@@ -16,9 +16,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentIndex = 0;
   List<Widget> listOfScreens = [
     StudentEntryPage(),
-    sec1page(),
-    sec2Page(),
-    sec3Page(),
+    S1(),
+    S2(selectedDropdownValue: '',),
+    S3(),
   ];
   @override
   Widget build(BuildContext context) {
