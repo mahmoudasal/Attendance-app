@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:excel/excel.dart';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'package:path/path.dart' as path;
 
 class S2 extends StatefulWidget {
   final String selectedDropdownValue;
@@ -12,7 +16,7 @@ class S2 extends StatefulWidget {
 class _S2State extends State<S2> {
   int? editingRowIndex;
   String? selectedDropdownValue;
-
+  String searchQuery = '';
   String newName = '';
   String newGphone = '';
   String newSphone = '';
@@ -31,7 +35,7 @@ class _S2State extends State<S2> {
           backgroundColor: Color(0xFF6F35A5),
           centerTitle: true,
           title: Text(
-            'الصف الاول الثانوي',
+            'الصف الثاني الثانوي',
             style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
           ),
         ),
@@ -58,54 +62,73 @@ class _S2State extends State<S2> {
                         String dropdownValue2 = preferences.getString("s2_dropdownValue1_$timestamp") ?? '';
                         String dropdownValue1 = preferences.getString("s2_dropdownValue2_$timestamp") ?? '';
 
-                        rows.add(DataRow(cells: [
-                          DataCell(Text(name)),
-                          DataCell(Text(gphone)),
-                          DataCell(Text(sphone)),
-                          DataCell(Text(dropdownValue1)),
-                          DataCell(Text(dropdownValue2)),
-                          DataCell(
-                            IconButton(
-                              icon: Icon(Icons.edit),
-                              onPressed: () {
-                                _editData(timestamp);
-                              },
+                        if (name.toLowerCase().contains(searchQuery.toLowerCase())) {
+                          rows.add(DataRow(cells: [
+                            DataCell(Text(name)),
+                            DataCell(Text(gphone)),
+                            DataCell(Text(sphone)),
+                            DataCell(Text(dropdownValue1)),
+                            DataCell(Text(dropdownValue2)),
+                            DataCell(
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  _editData(timestamp);
+                                },
+                              ),
                             ),
-                          ),
-                          DataCell(
-                            IconButton(
-                              icon: Icon(Icons.delete),
-                              onPressed: () {
-                                _deleteData(timestamp);
-                              },
+                            DataCell(
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  _deleteData(timestamp);
+                                },
+                              ),
                             ),
-                          ),
-                        ]));
+                          ]));
 
-                        if (editingRowIndex == int.parse(timestamp)) {
-                          rows.add(buildEditingRow(
-                            timestamp,
-                            name,
-                            gphone,
-                            sphone,
-                            dropdownValue1,
-                            dropdownValue2,
-                          ));
+                          if (editingRowIndex == int.parse(timestamp)) {
+                            rows.add(buildEditingRow(
+                              timestamp,
+                              name,
+                              gphone,
+                              sphone,
+                              dropdownValue1,
+                              dropdownValue2,
+                            ));
+                          }
                         }
                       }
                     });
 
-                    return DataTable(
-                      columns: [
-                        DataColumn(label: Text('الاسم')),
-                        DataColumn(label: Text('رقم الطالب')),
-                        DataColumn(label: Text('رقم ولي الأمر')),
-                        DataColumn(label: Text('المجموعة')),
-                        DataColumn(label: Text('السنة الدراسية')),
-                        DataColumn(label: Text('تعديل')),
-                        DataColumn(label: Text('حذف')),
+                    return Column(
+                      children: [
+                        TextFormField(
+                          textAlign: TextAlign.center,
+                          onChanged: (value) {
+                            setState(() {
+                              searchQuery = value;
+                            });
+                          },
+                          decoration: InputDecoration(hintText: 'اسم الطالب'),
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: DataTable(
+                              columns: [
+                                DataColumn(label: Text('الاسم')),
+                                DataColumn(label: Text('رقم الطالب')),
+                                DataColumn(label: Text('رقم ولي الأمر')),
+                                DataColumn(label: Text('المجموعة')),
+                                DataColumn(label: Text('السنة الدراسية')),
+                                DataColumn(label: Text('تعديل')),
+                                DataColumn(label: Text('حذف')),
+                              ],
+                              rows: rows,
+                            ),
+                          ),
+                        ),
                       ],
-                      rows: rows,
                     );
                   } else {
                     return Center(child: CircularProgressIndicator());
@@ -114,6 +137,11 @@ class _S2State extends State<S2> {
               ),
             ),
           ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Color(0xFF6F35A5),
+          onPressed: _exportToExcel,
+          child: Icon(Icons.file_download),
         ),
       ),
     );
@@ -251,5 +279,73 @@ class _S2State extends State<S2> {
     preferences.remove("s2_dropdownValue2_$timestamp");
 
     setState(() {});
+  }
+
+  void _exportToExcel() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+
+    Excel excel = Excel.createExcel();
+    Sheet sheet = excel['Sheet1'];
+
+    // Add headers to the sheet
+    sheet.appendRow([
+      'الاسم',
+      'رقم الطالب',
+      'رقم ولي الأمر',
+      'المجموعة',
+      'السنة الدراسية'
+    ]);
+
+    // Iterate through the stored data and add rows to the sheet
+    preferences.getKeys().forEach((key) {
+      if (key.startsWith("s2_name_")) {
+        String timestamp = key.substring(8);
+        String name = preferences.getString("s2_name_$timestamp") ?? '';
+        String gphone = preferences.getString("s2_gphone_$timestamp") ?? '';
+        String sphone = preferences.getString("s2_sphone_$timestamp") ?? '';
+        String dropdownValue2 = preferences.getString("s2_dropdownValue1_$timestamp") ?? '';
+        String dropdownValue1 = preferences.getString("s2_dropdownValue2_$timestamp") ?? '';
+
+        // Add data rows
+        sheet.appendRow([
+          name,
+          gphone,
+          sphone,
+          dropdownValue1,
+          dropdownValue2
+        ]);
+      }
+    });
+    // Get the document directory path to save the Excel file
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath = appDocDir.path;
+    String fileName = 's2_data.xlsx';
+    String filePath = path.join(appDocPath, fileName);
+
+    // Save the Excel file
+    List<int>? excelBytes = await excel.encode();
+
+    File(filePath)
+      ..createSync(recursive: true)
+      ..writeAsBytesSync(excelBytes!);
+
+    // Show a dialog indicating the successful export
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Exported Successfully'),
+          content: Text('File has been exported to excel '),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
