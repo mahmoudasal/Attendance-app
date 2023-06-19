@@ -1,10 +1,18 @@
-import 'package:el_zareef_app/screens/navbar.dart';
 import 'package:flutter/material.dart';
-
+import 'package:hive_flutter/hive_flutter.dart';
 import 'constants.dart';
+import 'models/student.dart';
+import 'models/student.g.dart';
+import 'screens/navbar.dart';
 
 void main() async {
-  runApp(const MyApp());
+  await Hive.initFlutter();
+  Hive.registerAdapter(StudentAdapter());
+  await Hive.openBox<Student>('students1');
+  await Hive.openBox<Student>('students2');
+  await Hive.openBox<Student>('students3');
+
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -14,7 +22,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-
       theme: ThemeData(
         primaryColor: kPrimaryColor,
         scaffoldBackgroundColor: Colors.white,
@@ -44,8 +51,6 @@ class MyApp extends StatelessWidget {
         "WelcomeScreen": (context) => NavigatorScreen(),
         "Navpage": (context) => NavigatorScreen()
       },
-      // home: WelcomeScreen(),
-      // // home: StudentEntryPage(),
     );
   }
 }

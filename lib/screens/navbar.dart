@@ -4,6 +4,7 @@ import 'package:el_zareef_app/screens/sec3page.dart';
 import 'package:flutter/material.dart';
 
 import 'attendance.dart';
+import 'daily_attend.dart';
 
 class NavigatorScreen extends StatefulWidget {
   const NavigatorScreen({Key? key}) : super(key: key);
@@ -16,9 +17,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentIndex = 0;
   List<Widget> listOfScreens = [
     StudentEntryPage(),
-    S1(),
-    S2(selectedDropdownValue: '',),
-    S3(),
+    dailyAttend(),
+    Sec1(),
+    Sec2(),
+    Sec3(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,10 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: "تسجيل الطلبه",
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: "الغياب  و الدرجات",
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

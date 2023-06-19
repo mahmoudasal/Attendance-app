@@ -1,243 +1,332 @@
-// ignore_for_file: unused_field, must_be_immutable
+// ignore_for_file: must_be_immutable, unused_import, unused_field
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../models/student.dart';
+import 'package:flutter/scheduler.dart';
 
 class StudentEntryPage extends StatefulWidget {
-  @override
   _StudentEntryPageState createState() => _StudentEntryPageState();
 }
 
-class _StudentEntryPageState extends State<StudentEntryPage> {
-  final List<Map<String, dynamic>> _data = [];
-  String firstDropdownValue = '     الصف الاول الثانوي     ';
-  String secondDropdownValue = '         سبت  و  ثلاثاء  الساعه 1:30         ';
-  String? selectedItem;
-  String? selectedItem1;
-  int _selectedIndex = -1;
-
-  final _formKey = GlobalKey<FormState>();
-  final _dropdownController = TextEditingController();
-
-  Map<String, List<String>> _choices = {
-    '     الصف الاول الثانوي     ': [
-      '         سبت  و  ثلاثاء  الساعه  1:30         ',
-      '         سبت  و  ثلاثاء  الساعه  2:30         ',
-      '         سبت  و  ثلاثاء  الساعه 3:30         '
-    ],
-    '     الصف الثاني الثانوي     ': [
-      '         سبت  و  ثلاثاء  الساعه  4:30         ',
-      '         سبت  و  ثلاثاء  الساعه  5:30         ',
-      '         سبت  و  ثلاثاء  الساعه 6:30         '
-    ],
-    '     الصف الثالث الثانوي     ': [
-      '         سبت  و  ثلاثاء  الساعه  7:30         ',
-      '         سبت  و  ثلاثاء  الساعه  8:30         ',
-      '         سبت  و  ثلاثاء  الساعه 9:30         '
-    ]
-  };
-
+class _StudentEntryPageState extends State<StudentEntryPage> with TickerProviderStateMixin {
+  final GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _gphoneController = TextEditingController();
   final TextEditingController _sphoneController = TextEditingController();
-  final TextEditingController _classsController = TextEditingController();
-  final TextEditingController _yearOfStudyController = TextEditingController();
+  late Box<Student> _studentsBox;
+  late ValueListenable<Box<Student>> _studentsListenable;
+  int _selectedIndex = -1;
+  late TabController _tabController;
 
-  savePref(String name, gphone, sphone, classs, yearOfStudy) async {
-    SharedPreferences preferences = await SharedPreferences.getInstance();
-    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+  @override
+  void initState() {
+    super.initState();
+    _studentsBox = Hive.box<Student>('students1');
+    _studentsListenable = _studentsBox.listenable();
+    _tabController = TabController(length: 2, vsync: this);
+  }
 
-    switch (firstDropdownValue) {
-      case '     الصف الاول الثانوي     ':
-        preferences.setString("name_$timestamp", name);
-        preferences.setString("gphone_$timestamp", gphone);
-        preferences.setString("sphone_$timestamp", sphone);
-        preferences.setString("dropdownValue1_$timestamp", firstDropdownValue);
-        preferences.setString("dropdownValue2_$timestamp", selectedItem1 ?? ''); // Update the selected value
+  Future<void> editStudent(int index, Student student) async {
+    final student = _studentsBox.getAt(index) as Student;
 
-        break;
-      case '     الصف الثاني الثانوي     ':
-        preferences.setString("s2_name_$timestamp", name);
-        preferences.setString("s2_gphone_$timestamp", gphone);
-        preferences.setString("s2_sphone_$timestamp", sphone);
-        preferences.setString("s2_dropdownValue1_$timestamp", firstDropdownValue);
-        preferences.setString("s2_dropdownValue2_$timestamp", selectedItem1 ?? ''); // Update the selected value
+    _nameController.text = student.name;
+    _gphoneController.text = student.gphone.toString();
+    _sphoneController.text = student.sphone.toString();
 
-        break;
-      case '     الصف الثالث الثانوي     ':
-        preferences.setString("s3_name_$timestamp", name);
-        preferences.setString("s3_gphone_$timestamp", gphone);
-        preferences.setString("s3_sphone_$timestamp", sphone);
-        preferences.setString("s3_dropdownValue1_$timestamp", firstDropdownValue);
-        preferences.setString("s3_dropdownValue2_$timestamp", selectedItem1 ?? ''); // Update the selected value
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Edit Student'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey1,
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(labelText: 'الاسم'),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'الرجاء ادخل اسم الطالب ';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: _gphoneController,
+                    decoration: InputDecoration(labelText: 'رقم ولي الامر'),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'ادخل رقم ولي الامر';
+                      }
+                      if (int.tryParse(value) == null) {
+                        return 'رقم غير صالح';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  TextFormField(
+                    controller: _sphoneController,
+                    decoration: InputDecoration(labelText: 'رقم الطالب '),
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'الرجاء ادخال رقم الطالب';
+                      }
+                      if (int.tryParse(value) == null) {
+                        return 'رقم غير صحيح';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _nameController.clear();
+                _gphoneController.clear();
+                _sphoneController.clear();
 
-        break;
-    }
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (_formKey1.currentState!.validate()) {
+                  final updatedStudent = Student(
+                    name: _nameController.text,
+                    gphone: int.parse(_gphoneController.text),
+                    sphone: int.parse(_sphoneController.text),
+                  );
+
+                  _studentsBox.putAt(index, updatedStudent);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Student data updated successfully!'),
+                    ),
+                  );
+
+                  _nameController.clear();
+                  _gphoneController.clear();
+                  _sphoneController.clear();
+
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> deleteStudent(int index) async {
+    await _studentsBox.deleteAt(index);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Student data deleted successfully!'),
+      ),
+    );
+    _nameController.clear();
+    _gphoneController.clear();
+    _sphoneController.clear();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _sphoneController.dispose();
+    _gphoneController.dispose();
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> addStudent() async {
+    final student = Student(
+      name: _nameController.text,
+      gphone: int.parse(_gphoneController.text),
+      sphone: int.parse(_sphoneController.text),
+    );
+
+    // await _studentsBox.clear(); // Clear the box before adding new data
+    await _studentsBox.add(student);
+
+    setState(() {
+      _nameController.clear();
+      _gphoneController.clear();
+      _sphoneController.clear();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          appBar: AppBar(
-              backgroundColor: Color(0xFF6F35A5),
-              centerTitle: true,
-              title: Text(
-                'تسجيل الطلبه',
-                style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
-              )),
-          body: Form(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xFF6F35A5),
+          centerTitle: true,
+          title: Text(
+            'تسجيل الطلبه',
+            style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+          ),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(text: 'Add new student'),
+              Tab(text: 'student List'),
+            ],
+          ),
+        ),
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            Form(
               key: _formKey,
               child: SingleChildScrollView(
-                  child: Center(
-                      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  height: 70,
-                  width: 750,
-                  child: TextFormField(
-                      textAlign: TextAlign.center,
-                      controller: _nameController,
-                      decoration: InputDecoration(hintText: 'اسم الطالب'),
-                      validator: (nameCurrentValue) {
-                        RegExp regex = RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
-                        var nameNonNullValue = nameCurrentValue ?? "";
-                        if (nameNonNullValue.isEmpty) {
-                          return (" الرجاء ادخال اسم الطالب");
-                        } else if (!regex.hasMatch(nameNonNullValue)) {
-                          return ("الرجاء ادخال اسم الطالب  ثلاثي");
-                        }
-                        return null;
-                      }),
-                ),
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                    height: 70,
-                    width: 750,
-                    child: TextFormField(
-                      textAlign: TextAlign.center,
-                      controller: _sphoneController,
-                      decoration: InputDecoration(hintText: 'رقم الطالب'),
-                      validator: (sphoneCurrentValue) {
-                        RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
-                        var sphoneNonNullValue = sphoneCurrentValue ?? "";
-                        if (sphoneNonNullValue.isEmpty) {
-                          return ("الرجاء ادخال رقم الطالب");
-                        } else if (!regex.hasMatch(sphoneNonNullValue)) {
-                          return ("الرجاء ادخال رقم صحيح");
-                        }
-                        return null;
-                      },
-                    )),
-                SizedBox(
-                  height: 25,
-                ),
-                SizedBox(
-                  height: 70,
-                  width: 750,
-                  child: TextFormField(
-                    textAlign: TextAlign.center,
-                    controller: _gphoneController,
-                    decoration: InputDecoration(hintText: 'رقم ولي الامر '),
-                    validator: (sphoneCurrentValue) {
-                      RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
-                      var sphoneNonNullValue = sphoneCurrentValue ?? "";
-                      if (sphoneNonNullValue.isEmpty) {
-                        return ("الرجاء ادخال رقم ولي الامر    ");
-                      } else if (!regex.hasMatch(sphoneNonNullValue)) {
-                        return ("الرجاء ادخال رقم صحيح");
-                      }
-                      return null;
-                    },
+                child: Center(
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          height: 100,
+                        ),
+                        SizedBox(
+                          height: 70,
+                          width: 750,
+                          child: TextFormField(
+                            textAlign: TextAlign.center,
+                            controller: _nameController,
+                            decoration: InputDecoration(hintText: 'اسم الطالب'),
+                            // validator: (nameCurrentValue) {
+                            //   RegExp regex = RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
+                            //   var nameNonNullValue = nameCurrentValue ?? "";
+                            //   if (nameNonNullValue.isEmpty) {
+                            //     return (" الرجاء ادخال اسم الطالب");
+                            //   } else if (!regex.hasMatch(nameNonNullValue)) {
+                            //     return ("الرجاء ادخال اسم الطالب  ثلاثي");
+                            //   }
+                            //   return null;
+                            // }
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        SizedBox(
+                            height: 70,
+                            width: 750,
+                            child: TextFormField(
+                              textAlign: TextAlign.center,
+                              controller: _sphoneController,
+                              decoration: InputDecoration(hintText: 'رقم الطالب'),
+                              // validator: (sphoneCurrentValue) {
+                              //   RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
+                              //   var sphoneNonNullValue = sphoneCurrentValue ?? "";
+                              //   if (sphoneNonNullValue.isEmpty) {
+                              //     return ("الرجاء ادخال رقم الطالب");
+                              //   } else if (!regex.hasMatch(sphoneNonNullValue)) {
+                              //     return ("الرجاء ادخال رقم صحيح");
+                              //   }
+                              //   return null;
+                              // },
+                            )),
+                        SizedBox(
+                          height: 25,
+                        ),
+                        SizedBox(
+                          height: 70,
+                          width: 750,
+                          child: TextFormField(
+                            textAlign: TextAlign.center,
+                            controller: _gphoneController,
+                            decoration: InputDecoration(hintText: 'رقم ولي الامر '),
+                            // validator: (sphoneCurrentValue) {
+                            //   RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
+                            //   var sphoneNonNullValue = sphoneCurrentValue ?? "";
+                            //   if (sphoneNonNullValue.isEmpty) {
+                            //     return ("الرجاء ادخال رقم ولي الامر    ");
+                            //   } else if (!regex.hasMatch(sphoneNonNullValue)) {
+                            //     return ("الرجاء ادخال رقم صحيح");
+                            //   }
+                            //   return null;
+                            // },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 25,
+                        ),
+                        SizedBox(
+                          width: 500,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                addStudent();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('تمت إضافة بيانات الطالب بنجاح!'),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Text('Add Data'),
+                          ),
+                        ),
+                        SizedBox(height: 16.0),
+                      ],
+                    ),
                   ),
                 ),
-                SizedBox(
-                  height: 25,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: DropdownButtonFormField<String>(
-                    focusColor: Colors.white,
-                    validator: (newValue) => newValue == null ? 'الرجاء اختيار السنه الدراسيه' : null,
-                    hint: Text("         السنه الدراسيه          "),
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        firstDropdownValue = newValue!;
-                        selectedItem1 = null; // Reset the selected value of the second dropdown
-                      });
-                    },
-                    items: <String>[
-                      '     الصف الاول الثانوي     ',
-                      '     الصف الثاني الثانوي     ',
-                      '     الصف الثالث الثانوي     '
-                    ].map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: DropdownButtonFormField<String>(
-                    focusColor: Colors.white,
-                    validator: (value1) => value1 == null ? 'الرجاء اختيار المجموعه' : null,
-                    hint: Text("         ادخل المجموعه         "),
-                    onChanged: (String? value1) {
-                      setState(() {
-                        selectedItem1 = value1; // update the selected item value
-                      });
-                    },
-                    value: selectedItem1,
-                    items: _choices[firstDropdownValue]?.map<DropdownMenuItem<String>>((String? value1) {
-                      return DropdownMenuItem<String>(
-                        value: value1,
-                        child: Text(value1!),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                SizedBox(
-                  height: 25,
-                ),
-                SizedBox(
-                    width: 500,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          savePref(
-                            _nameController.text,
-                            _gphoneController.text,
-                            _sphoneController.text,
-                            secondDropdownValue,
-                            firstDropdownValue,
-                          );
-                          _formKey.currentState!.reset();
-                          _nameController.clear();
-                          _gphoneController.clear();
-                          _sphoneController.clear();
-                        }
-                      },
-                      child: Text('Add Data'),
-                    ))
-              ])))),
-        ));
+              ),
+            ),
+            // tap2 -------------------------------------------------------------------------------------------------------------------------------
+            Container(
+              child: ListView.builder(
+                itemCount: _studentsBox.length,
+                itemBuilder: (context, index) {
+                  final student = _studentsBox.getAt(index) as Student;
+                  return ListTile(
+                    title: Text(student.name),
+                    subtitle: Text(
+                      'رقم ولي الأمر: ${student.gphone}, رقم الطالب: ${student.sphone}',
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit),
+                          onPressed: () => editStudent(index, student),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete),
+                          onPressed: () => deleteStudent(index),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
-}
-
-Future<void> savePref(BuildContext context, String name, String gphone, String sphone, String classs, String yearOfStudy) async {
-  SharedPreferences preferences = await SharedPreferences.getInstance();
-  preferences.setString("name", name);
-  preferences.setString("gphone", gphone);
-  preferences.setString("sphone", sphone);
-  preferences.setString("classs", classs);
-  preferences.setString("yearOfStudy", yearOfStudy);
 }
