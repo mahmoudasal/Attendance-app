@@ -1,9 +1,10 @@
 import 'package:el_zareef_app/models/student.dart';
 import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class StudentAdapter extends TypeAdapter<Student> {
   @override
-  int get typeId => 0;
+  final int typeId = 0; // Make sure to assign a unique typeId for each TypeAdapter
 
   @override
   Student read(BinaryReader reader) {

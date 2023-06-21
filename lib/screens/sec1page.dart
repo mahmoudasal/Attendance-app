@@ -1,11 +1,12 @@
-// ignore_for_file: must_be_immutable, unused_import, unused_field
-import 'package:flutter/foundation.dart';
+// ignore_for_file: library_private_types_in_public_api, annotate_overrides
+
+import 'package:el_zareef_app/models/student.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import '../models/student.dart';
-import 'package:flutter/scheduler.dart';
 
 class Sec1 extends StatefulWidget {
+  const Sec1({super.key});
+
   _Sec1State createState() => _Sec1State();
 }
 
@@ -15,21 +16,34 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _gphoneController = TextEditingController();
   final TextEditingController _sphoneController = TextEditingController();
-  late Box<Student> _studentsBox;
-  late ValueListenable<Box<Student>> _studentsListenable;
-  int _selectedIndex = -1;
+
   late TabController _tabController;
+
+  String _selectedChoice = 'sat & tue1';
+
+  late final Box<Student> _studentsBox1;
+  late final Box<Student> _studentsBox2;
+  late final Box<Student> _studentsBox3;
+  late final Box<Student> _studentsBox4;
+  late final Box<Student> _studentsBox5;
+
+  static final RegExp nameRegex = RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
+  static final RegExp phoneRegex = RegExp(r'^01[0125][0-9]{8}$');
 
   @override
   void initState() {
     super.initState();
-    _studentsBox = Hive.box<Student>('students1');
-    _studentsListenable = _studentsBox.listenable();
-    _tabController = TabController(length: 4, vsync: this);
+    _studentsBox1 = Hive.box<Student>('sat&tue1');
+    _studentsBox2 = Hive.box<Student>('sat&tue2');
+    _studentsBox3 = Hive.box<Student>('sat&tue3');
+    _studentsBox4 = Hive.box<Student>('sat&tue4');
+    _studentsBox5 = Hive.box<Student>('sat&tue5');
+
+    _tabController = TabController(length: 6, vsync: this);
   }
 
-  Future<void> editStudent(int index, Student student) async {
-    final student = _studentsBox.getAt(index) as Student;
+  Future<void> editStudent(Box<Student> box, int index, Student studentParameter) async {
+    final student = box.getAt(index) as Student;
 
     _nameController.text = student.name;
     _gphoneController.text = student.gphone.toString();
@@ -39,54 +53,62 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Edit Student'),
+          title: const Text('تعديل بيانات الطالب'),
           content: SingleChildScrollView(
             child: Form(
               key: _formKey1,
               child: Column(
                 children: [
                   TextFormField(
+                    textAlign: TextAlign.center,
                     controller: _nameController,
-                    decoration: InputDecoration(labelText: 'الاسم'),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'الرجاء ادخل اسم الطالب ';
+                    decoration: const InputDecoration(hintText: 'اسم الطالب'),
+                    validator: (nameCurrentValue) {
+                      var nameNonNullValue = nameCurrentValue ?? "";
+                      if (nameNonNullValue.isEmpty) {
+                        return (" الرجاء ادخال اسم الطالب");
+                      } else if (!nameRegex.hasMatch(nameNonNullValue)) {
+                        return ("الرجاء ادخال اسم الطالب  ثلاثي");
                       }
                       return null;
                     },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   TextFormField(
+                    textAlign: TextAlign.center,
                     controller: _gphoneController,
-                    decoration: InputDecoration(labelText: 'رقم ولي الامر'),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'ادخل رقم ولي الامر';
-                      }
-                      if (int.tryParse(value) == null) {
-                        return 'رقم غير صالح';
+                    decoration: const InputDecoration(hintText: 'رقم ولي الامر '),
+                    validator: (gphoneCurrentValue) {
+                      RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
+                      var gphoneNonNullValue = gphoneCurrentValue ?? "";
+                      if (gphoneNonNullValue.isEmpty) {
+                        return ("الرجاء ادخال رقم ولي الامر    ");
+                      } else if (!regex.hasMatch(gphoneNonNullValue)) {
+                        return ("الرجاء ادخال رقم صحيح");
                       }
                       return null;
                     },
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   TextFormField(
+                    textAlign: TextAlign.center,
                     controller: _sphoneController,
-                    decoration: InputDecoration(labelText: 'رقم الطالب '),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'الرجاء ادخال رقم الطالب';
-                      }
-                      if (int.tryParse(value) == null) {
-                        return 'رقم غير صحيح';
+                    decoration: const InputDecoration(hintText: 'رقم الطالب'),
+                    validator: (sphoneCurrentValue) {
+                      RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
+                      var sphoneNonNullValue = sphoneCurrentValue ?? "";
+                      if (sphoneNonNullValue.isEmpty) {
+                        return ("الرجاء ادخال رقم الطالب");
+                      } else if (!regex.hasMatch(sphoneNonNullValue)) {
+                        return ("الرجاء ادخال رقم صحيح");
                       }
                       return null;
                     },
-                  ),
+                  )
                 ],
               ),
             ),
@@ -100,7 +122,7 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
 
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
@@ -111,10 +133,10 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                     sphone: int.parse(_sphoneController.text),
                   );
 
-                  _studentsBox.putAt(index, updatedStudent);
+                  box.putAt(index, updatedStudent);
 
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('Student data updated successfully!'),
                     ),
                   );
@@ -126,7 +148,7 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                   Navigator.of(context).pop();
                 }
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -134,17 +156,39 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
     );
   }
 
-  Future<void> deleteStudent(int index) async {
-    await _studentsBox.deleteAt(index);
+  void deleteStudent(Box<Student> box, int index) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Student'),
+          content: const Text('Are you sure you want to delete this student?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                box.deleteAt(index); // Remove student from the box
+                setState(() {});
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Student data deleted successfully!'),
-      ),
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Student deleted successfully!'),
+                  ),
+                );
+
+                Navigator.of(context).pop();
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
     );
-    _nameController.clear();
-    _gphoneController.clear();
-    _sphoneController.clear();
   }
 
   @override
@@ -153,6 +197,7 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
     _sphoneController.dispose();
     _gphoneController.dispose();
     _tabController.dispose();
+
     super.dispose();
   }
 
@@ -163,8 +208,29 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
       sphone: int.parse(_sphoneController.text),
     );
 
-    // await _studentsBox.clear(); // Clear the box before adding new data
-    await _studentsBox.add(student);
+    // Get the selected box based on the dropdown value
+    Box<Student> selectedBox;
+    switch (_selectedChoice) {
+      case 'sat & tue1':
+        selectedBox = _studentsBox1;
+        break;
+      case 'sat & tue2':
+        selectedBox = _studentsBox2;
+        break;
+      case 'sat & tue3':
+        selectedBox = _studentsBox3;
+        break;
+      case 'sat & tue4':
+        selectedBox = _studentsBox4;
+        break;
+      case 'sat & tue5':
+        selectedBox = _studentsBox5;
+        break;
+      default:
+        selectedBox = _studentsBox1; // Default to the first box
+    }
+
+    await selectedBox.add(student);
 
     setState(() {
       _nameController.clear();
@@ -179,19 +245,21 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(0xFF6F35A5),
+          backgroundColor: const Color(0xFF6F35A5),
           centerTitle: true,
-          title: Text(
-            'تسجيل الطلبه',
+          title: const Text(
+            'الصف الاول الثانوي ',
             style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
           ),
           bottom: TabBar(
             controller: _tabController,
-            tabs: [
-              Tab(text: 'اضافه طالب'),
-              Tab(text: 'سبت و ثلاثاء 2:30'),
-              Tab(text: 'احد واربعاء 3:30'),
-              Tab(text: 'اثنين و خميس 4:30'),
+            tabs: const [
+              Tab(text: 'تسجيل طالب جديد'),
+              Tab(text: 'sat & tue1'),
+              Tab(text: 'sat & tue2'),
+              Tab(text: 'sat & tue3'),
+              Tab(text: 'sat & tue4'),
+              Tab(text: 'sat & tue5'),
             ],
           ),
         ),
@@ -202,12 +270,12 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
               key: _formKey,
               child: SingleChildScrollView(
                 child: Center(
-                  child: Container(
+                  child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     height: MediaQuery.of(context).size.height,
                     child: Column(
                       children: [
-                        SizedBox(
+                        const SizedBox(
                           height: 100,
                         ),
                         SizedBox(
@@ -216,20 +284,20 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                           child: TextFormField(
                             textAlign: TextAlign.center,
                             controller: _nameController,
-                            decoration: InputDecoration(hintText: 'اسم الطالب'),
-                            // validator: (nameCurrentValue) {
-                            //   RegExp regex = RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
-                            //   var nameNonNullValue = nameCurrentValue ?? "";
-                            //   if (nameNonNullValue.isEmpty) {
-                            //     return (" الرجاء ادخال اسم الطالب");
-                            //   } else if (!regex.hasMatch(nameNonNullValue)) {
-                            //     return ("الرجاء ادخال اسم الطالب  ثلاثي");
-                            //   }
-                            //   return null;
-                            // }
+                            decoration: const InputDecoration(hintText: 'اسم الطالب'),
+                            validator: (nameCurrentValue) {
+                              RegExp regex = RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
+                              var nameNonNullValue = nameCurrentValue ?? "";
+                              if (nameNonNullValue.isEmpty) {
+                                return (" الرجاء ادخال اسم الطالب");
+                              } else if (!regex.hasMatch(nameNonNullValue)) {
+                                return ("الرجاء ادخال اسم الطالب  ثلاثي");
+                              }
+                              return null;
+                            },
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 20,
                         ),
                         SizedBox(
@@ -238,19 +306,18 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                             child: TextFormField(
                               textAlign: TextAlign.center,
                               controller: _sphoneController,
-                              decoration: InputDecoration(hintText: 'رقم الطالب'),
-                              // validator: (sphoneCurrentValue) {
-                              //   RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
-                              //   var sphoneNonNullValue = sphoneCurrentValue ?? "";
-                              //   if (sphoneNonNullValue.isEmpty) {
-                              //     return ("الرجاء ادخال رقم الطالب");
-                              //   } else if (!regex.hasMatch(sphoneNonNullValue)) {
-                              //     return ("الرجاء ادخال رقم صحيح");
-                              //   }
-                              //   return null;
-                              // },
+                              decoration: const InputDecoration(hintText: 'رقم الطالب'),
+                              validator: (sphoneCurrentValue) {
+                                var sphoneNonNullValue = sphoneCurrentValue ?? "";
+                                if (sphoneNonNullValue.isEmpty) {
+                                  return ("الرجاء ادخال رقم الطالب");
+                                } else if (!phoneRegex.hasMatch(sphoneNonNullValue)) {
+                                  return ("الرجاء ادخال رقم صحيح");
+                                }
+                                return null;
+                              },
                             )),
-                        SizedBox(
+                        const SizedBox(
                           height: 25,
                         ),
                         SizedBox(
@@ -259,21 +326,46 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                           child: TextFormField(
                             textAlign: TextAlign.center,
                             controller: _gphoneController,
-                            decoration: InputDecoration(hintText: 'رقم ولي الامر '),
-                            // validator: (sphoneCurrentValue) {
-                            //   RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
-                            //   var sphoneNonNullValue = sphoneCurrentValue ?? "";
-                            //   if (sphoneNonNullValue.isEmpty) {
-                            //     return ("الرجاء ادخال رقم ولي الامر    ");
-                            //   } else if (!regex.hasMatch(sphoneNonNullValue)) {
-                            //     return ("الرجاء ادخال رقم صحيح");
-                            //   }
-                            //   return null;
-                            // },
+                            decoration: const InputDecoration(hintText: 'رقم ولي الامر '),
+                            validator: (gphoneCurrentValue) {
+                              var gphoneNonNullValue = gphoneCurrentValue ?? "";
+                              if (gphoneNonNullValue.isEmpty) {
+                                return ("الرجاء ادخال رقم ولي الامر    ");
+                              } else if (!phoneRegex.hasMatch(gphoneNonNullValue)) {
+                                return ("الرجاء ادخال رقم صحيح");
+                              }
+                              return null;
+                            },
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           height: 25,
+                        ),
+                        SizedBox(
+                          height: 70,
+                          width: 550,
+                          child: DropdownButtonFormField<String>(
+                            focusColor: Colors.white,
+                            autofocus: true,
+                            value: _selectedChoice,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                _selectedChoice = newValue!;
+                              });
+                            },
+                            items: <String>[
+                              'sat & tue1',
+                              'sat & tue2',
+                              'sat & tue3',
+                              'sat & tue4',
+                              'sat & tue5',
+                            ].map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
                         ),
                         SizedBox(
                           width: 500,
@@ -282,105 +374,196 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                               if (_formKey.currentState!.validate()) {
                                 addStudent();
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
+                                  const SnackBar(
                                     content: Text('تمت إضافة بيانات الطالب بنجاح!'),
                                   ),
                                 );
                               }
                             },
-                            child: Text('Add Data'),
+                            child: const Text('اضافه'),
                           ),
                         ),
-                        SizedBox(height: 16.0),
+                        const SizedBox(height: 16.0),
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-            // tap2 -------------------------------------------------------------------------------------------------------------------------------
-            Container(
-              child: ListView.builder(
-                itemCount: _studentsBox.length,
-                itemBuilder: (context, index) {
-                  final student = _studentsBox.getAt(index) as Student;
-                  return ListTile(
-                    title: Text(student.name),
-                    subtitle: Text(
-                      'رقم ولي الأمر: ${student.gphone}, رقم الطالب: ${student.sphone}',
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () => editStudent(index, student),
+            // Tab 1 -----------------------------
+            Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _studentsBox1.length,
+                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
+                    itemBuilder: (context, index) {
+                      final student = _studentsBox1.getAt(index) as Student;
+                      return ListTile(
+                        title: Text(student.name),
+                        subtitle: Text(
+                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => deleteStudent(index),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => editStudent(_studentsBox1, index, student),
+                            ),
+                            IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  deleteStudent(_studentsBox1, index);
+                                  setState(() {});
+                                }),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            // tap3 -------------------------------------------------------------------------------------------------------------------------------
-            Container(
-              child: ListView.builder(
-                itemCount: _studentsBox.length,
-                itemBuilder: (context, index) {
-                  final student = _studentsBox.getAt(index) as Student;
-                  return ListTile(
-                    title: Text(student.name),
-                    subtitle: Text(
-                      'رقم ولي الأمر: ${student.gphone}, رقم الطالب: ${student.sphone}',
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () => editStudent(index, student),
+            // Tap2-------------------------------------------------
+            Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _studentsBox2.length,
+                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
+                    itemBuilder: (context, index) {
+                      final student = _studentsBox2.getAt(index) as Student;
+                      return ListTile(
+                        title: Text(student.name),
+                        subtitle: Text(
+                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => deleteStudent(index),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => editStudent(_studentsBox2, index, student),
+                            ),
+                            IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  deleteStudent(_studentsBox2, index);
+                                  setState(() {});
+                                }),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
-            // tap4 -------------------------------------------------------------------------------------------------------------------------------
-            Container(
-              child: ListView.builder(
-                itemCount: _studentsBox.length,
-                itemBuilder: (context, index) {
-                  final student = _studentsBox.getAt(index) as Student;
-                  return ListTile(
-                    title: Text(student.name),
-                    subtitle: Text(
-                      'رقم ولي الأمر: ${student.gphone}, رقم الطالب: ${student.sphone}',
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.edit),
-                          onPressed: () => editStudent(index, student),
+            // Tap3--------------------------------------------
+            Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _studentsBox3.length,
+                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
+                    itemBuilder: (context, index) {
+                      final student = _studentsBox3.getAt(index) as Student;
+                      return ListTile(
+                        title: Text(student.name),
+                        subtitle: Text(
+                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete),
-                          onPressed: () => deleteStudent(index),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => editStudent(_studentsBox3, index, student),
+                            ),
+                            IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  deleteStudent(_studentsBox3, index);
+                                  setState(() {});
+                                }),
+                          ],
                         ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            // Tap4--------------------------
+            Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _studentsBox4.length,
+                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
+                    itemBuilder: (context, index) {
+                      final student = _studentsBox4.getAt(index) as Student;
+                      return ListTile(
+                        title: Text(student.name),
+                        subtitle: Text(
+                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => editStudent(_studentsBox4, index, student),
+                            ),
+                            IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  deleteStudent(_studentsBox4, index);
+                                  setState(() {});
+                                }),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            // Tap5-------------------
+            Column(
+              children: [
+                Expanded(
+                  child: ListView.separated(
+                    itemCount: _studentsBox5.length,
+                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
+                    itemBuilder: (context, index) {
+                      final student = _studentsBox5.getAt(index) as Student;
+                      return ListTile(
+                        title: Text(student.name),
+                        subtitle: Text(
+                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => editStudent(_studentsBox5, index, student),
+                            ),
+                            IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () {
+                                  deleteStudent(_studentsBox5, index);
+                                  setState(() {});
+                                }),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
         ),

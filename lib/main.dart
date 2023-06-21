@@ -7,12 +7,24 @@ import 'screens/navbar.dart';
 
 void main() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(StudentAdapter());
-  await Hive.openBox<Student>('students1');
-  await Hive.openBox<Student>('students2');
-  await Hive.openBox<Student>('students3');
+  Hive.registerAdapter<Student>(StudentAdapter());
+  await Hive.openBox<Student>('sat&tue1');
+  await Hive.openBox<Student>('sat&tue2');
+  await Hive.openBox<Student>('sat&tue3');
+  await Hive.openBox<Student>('sat&tue4');
+  await Hive.openBox<Student>('sat&tue5');
+  await Hive.openBox<Student>('sat&tue6');
+  await Hive.openBox<Student>('sat&tue7');
+  await Hive.openBox<Student>('sat&tue8');
+  await Hive.openBox<Student>('sat&tue9');
+  await Hive.openBox<Student>('sat&tue10');
+  await Hive.openBox<Student>('sat&tue11');
+  await Hive.openBox<Student>('sat&tue12');
+  await Hive.openBox<Student>('sat&tue13');
+  await Hive.openBox<Student>('sat&tue14');
+  await Hive.openBox<Student>('sat&tue15');
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -48,8 +60,8 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: "WelcomeScreen",
       routes: {
-        "WelcomeScreen": (context) => NavigatorScreen(),
-        "Navpage": (context) => NavigatorScreen()
+        "WelcomeScreen": (context) => const NavigatorScreen(),
+        "Navpage": (context) => const NavigatorScreen()
       },
     );
   }

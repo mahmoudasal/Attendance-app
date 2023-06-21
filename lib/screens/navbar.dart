@@ -3,9 +3,6 @@ import 'package:el_zareef_app/screens/sec2page.dart';
 import 'package:el_zareef_app/screens/sec3page.dart';
 import 'package:flutter/material.dart';
 
-import 'attendance.dart';
-import 'daily_attend.dart';
-
 class NavigatorScreen extends StatefulWidget {
   const NavigatorScreen({Key? key}) : super(key: key);
 
@@ -16,9 +13,7 @@ class NavigatorScreen extends StatefulWidget {
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentIndex = 0;
   List<Widget> listOfScreens = [
-    StudentEntryPage(),
-    dailyAttend(),
-    Sec1(),
+    const Sec1(),
     Sec2(),
     Sec3(),
   ];
@@ -37,15 +32,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
           });
         },
         type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "تسجيل الطلبه",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "الغياب  و الدرجات",
-          ),
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: "الصف الاول الثانوي ",
