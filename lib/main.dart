@@ -1,29 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'constants.dart';
-import 'models/student.dart';
-import 'models/student.g.dart';
+
 import 'screens/navbar.dart';
 
 void main() async {
-  await Hive.initFlutter();
-  Hive.registerAdapter<Student>(StudentAdapter());
-  await Hive.openBox<Student>('sat&tue1');
-  await Hive.openBox<Student>('sat&tue2');
-  await Hive.openBox<Student>('sat&tue3');
-  await Hive.openBox<Student>('sat&tue4');
-  await Hive.openBox<Student>('sat&tue5');
-  await Hive.openBox<Student>('sat&tue6');
-  await Hive.openBox<Student>('sat&tue7');
-  await Hive.openBox<Student>('sat&tue8');
-  await Hive.openBox<Student>('sat&tue9');
-  await Hive.openBox<Student>('sat&tue10');
-  await Hive.openBox<Student>('sat&tue11');
-  await Hive.openBox<Student>('sat&tue12');
-  await Hive.openBox<Student>('sat&tue13');
-  await Hive.openBox<Student>('sat&tue14');
-  await Hive.openBox<Student>('sat&tue15');
-
   runApp(const MyApp());
 }
 

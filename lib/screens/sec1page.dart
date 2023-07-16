@@ -1,8 +1,7 @@
-// ignore_for_file: library_private_types_in_public_api, annotate_overrides
+// ignore_for_file: library_private_types_in_public_api, annotate_overrides, unused_field, unused_local_variable
 
-import 'package:el_zareef_app/models/student.dart';
+import 'package:el_zareef_app/sqlDb.dart';
 import 'package:flutter/material.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
 class Sec1 extends StatefulWidget {
   const Sec1({super.key});
@@ -11,7 +10,6 @@ class Sec1 extends StatefulWidget {
 }
 
 class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
-  final GlobalKey<FormState> _formKey1 = GlobalKey<FormState>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _gphoneController = TextEditingController();
@@ -21,174 +19,21 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
 
   String _selectedChoice = 'sat & tue1';
 
-  late final Box<Student> _studentsBox1;
-  late final Box<Student> _studentsBox2;
-  late final Box<Student> _studentsBox3;
-  late final Box<Student> _studentsBox4;
-  late final Box<Student> _studentsBox5;
-
-  static final RegExp nameRegex = RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
+  static final RegExp nameRegex =
+      RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
   static final RegExp phoneRegex = RegExp(r'^01[0125][0-9]{8}$');
+  SqlDb sqlDb = SqlDb();
+  String name = 'mahmoud asalll';
+  int sPhone = 123456789;
+  int gPhone = 987654321;
+  String sql =
+      "INSERT INTO 'studentList' ('name', 'sPhone', 'gPhone') VALUES (?, ?, ?)";
 
   @override
   void initState() {
     super.initState();
-    _studentsBox1 = Hive.box<Student>('sat&tue1');
-    _studentsBox2 = Hive.box<Student>('sat&tue2');
-    _studentsBox3 = Hive.box<Student>('sat&tue3');
-    _studentsBox4 = Hive.box<Student>('sat&tue4');
-    _studentsBox5 = Hive.box<Student>('sat&tue5');
 
     _tabController = TabController(length: 6, vsync: this);
-  }
-
-  Future<void> editStudent(Box<Student> box, int index, Student studentParameter) async {
-    final student = box.getAt(index) as Student;
-
-    _nameController.text = student.name;
-    _gphoneController.text = student.gphone.toString();
-    _sphoneController.text = student.sphone.toString();
-
-    await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('تعديل بيانات الطالب'),
-          content: SingleChildScrollView(
-            child: Form(
-              key: _formKey1,
-              child: Column(
-                children: [
-                  TextFormField(
-                    textAlign: TextAlign.center,
-                    controller: _nameController,
-                    decoration: const InputDecoration(hintText: 'اسم الطالب'),
-                    validator: (nameCurrentValue) {
-                      var nameNonNullValue = nameCurrentValue ?? "";
-                      if (nameNonNullValue.isEmpty) {
-                        return (" الرجاء ادخال اسم الطالب");
-                      } else if (!nameRegex.hasMatch(nameNonNullValue)) {
-                        return ("الرجاء ادخال اسم الطالب  ثلاثي");
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    textAlign: TextAlign.center,
-                    controller: _gphoneController,
-                    decoration: const InputDecoration(hintText: 'رقم ولي الامر '),
-                    validator: (gphoneCurrentValue) {
-                      RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
-                      var gphoneNonNullValue = gphoneCurrentValue ?? "";
-                      if (gphoneNonNullValue.isEmpty) {
-                        return ("الرجاء ادخال رقم ولي الامر    ");
-                      } else if (!regex.hasMatch(gphoneNonNullValue)) {
-                        return ("الرجاء ادخال رقم صحيح");
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  TextFormField(
-                    textAlign: TextAlign.center,
-                    controller: _sphoneController,
-                    decoration: const InputDecoration(hintText: 'رقم الطالب'),
-                    validator: (sphoneCurrentValue) {
-                      RegExp regex = RegExp(r'^01[0125][0-9]{8}$');
-                      var sphoneNonNullValue = sphoneCurrentValue ?? "";
-                      if (sphoneNonNullValue.isEmpty) {
-                        return ("الرجاء ادخال رقم الطالب");
-                      } else if (!regex.hasMatch(sphoneNonNullValue)) {
-                        return ("الرجاء ادخال رقم صحيح");
-                      }
-                      return null;
-                    },
-                  )
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                _nameController.clear();
-                _gphoneController.clear();
-                _sphoneController.clear();
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                if (_formKey1.currentState!.validate()) {
-                  final updatedStudent = Student(
-                    name: _nameController.text,
-                    gphone: int.parse(_gphoneController.text),
-                    sphone: int.parse(_sphoneController.text),
-                  );
-
-                  box.putAt(index, updatedStudent);
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Student data updated successfully!'),
-                    ),
-                  );
-
-                  _nameController.clear();
-                  _gphoneController.clear();
-                  _sphoneController.clear();
-
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void deleteStudent(Box<Student> box, int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Delete Student'),
-          content: const Text('Are you sure you want to delete this student?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                box.deleteAt(index); // Remove student from the box
-                setState(() {});
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Student deleted successfully!'),
-                  ),
-                );
-
-                Navigator.of(context).pop();
-              },
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   @override
@@ -199,44 +44,6 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
     _tabController.dispose();
 
     super.dispose();
-  }
-
-  Future<void> addStudent() async {
-    final student = Student(
-      name: _nameController.text,
-      gphone: int.parse(_gphoneController.text),
-      sphone: int.parse(_sphoneController.text),
-    );
-
-    // Get the selected box based on the dropdown value
-    Box<Student> selectedBox;
-    switch (_selectedChoice) {
-      case 'sat & tue1':
-        selectedBox = _studentsBox1;
-        break;
-      case 'sat & tue2':
-        selectedBox = _studentsBox2;
-        break;
-      case 'sat & tue3':
-        selectedBox = _studentsBox3;
-        break;
-      case 'sat & tue4':
-        selectedBox = _studentsBox4;
-        break;
-      case 'sat & tue5':
-        selectedBox = _studentsBox5;
-        break;
-      default:
-        selectedBox = _studentsBox1; // Default to the first box
-    }
-
-    await selectedBox.add(student);
-
-    setState(() {
-      _nameController.clear();
-      _gphoneController.clear();
-      _sphoneController.clear();
-    });
   }
 
   @override
@@ -284,9 +91,11 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                           child: TextFormField(
                             textAlign: TextAlign.center,
                             controller: _nameController,
-                            decoration: const InputDecoration(hintText: 'اسم الطالب'),
+                            decoration:
+                                const InputDecoration(hintText: 'اسم الطالب'),
                             validator: (nameCurrentValue) {
-                              RegExp regex = RegExp(r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
+                              RegExp regex = RegExp(
+                                  r'^[\u0621-\u064A]+\s[\u0621-\u064A]+\s[\u0621-\u064A]+$');
                               var nameNonNullValue = nameCurrentValue ?? "";
                               if (nameNonNullValue.isEmpty) {
                                 return (" الرجاء ادخال اسم الطالب");
@@ -306,12 +115,15 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                             child: TextFormField(
                               textAlign: TextAlign.center,
                               controller: _sphoneController,
-                              decoration: const InputDecoration(hintText: 'رقم الطالب'),
+                              decoration:
+                                  const InputDecoration(hintText: 'رقم الطالب'),
                               validator: (sphoneCurrentValue) {
-                                var sphoneNonNullValue = sphoneCurrentValue ?? "";
+                                var sphoneNonNullValue =
+                                    sphoneCurrentValue ?? "";
                                 if (sphoneNonNullValue.isEmpty) {
                                   return ("الرجاء ادخال رقم الطالب");
-                                } else if (!phoneRegex.hasMatch(sphoneNonNullValue)) {
+                                } else if (!phoneRegex
+                                    .hasMatch(sphoneNonNullValue)) {
                                   return ("الرجاء ادخال رقم صحيح");
                                 }
                                 return null;
@@ -326,12 +138,14 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                           child: TextFormField(
                             textAlign: TextAlign.center,
                             controller: _gphoneController,
-                            decoration: const InputDecoration(hintText: 'رقم ولي الامر '),
+                            decoration: const InputDecoration(
+                                hintText: 'رقم ولي الامر '),
                             validator: (gphoneCurrentValue) {
                               var gphoneNonNullValue = gphoneCurrentValue ?? "";
                               if (gphoneNonNullValue.isEmpty) {
                                 return ("الرجاء ادخال رقم ولي الامر    ");
-                              } else if (!phoneRegex.hasMatch(gphoneNonNullValue)) {
+                              } else if (!phoneRegex
+                                  .hasMatch(gphoneNonNullValue)) {
                                 return ("الرجاء ادخال رقم صحيح");
                               }
                               return null;
@@ -370,15 +184,19 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
                         SizedBox(
                           width: 500,
                           child: ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                addStudent();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('تمت إضافة بيانات الطالب بنجاح!'),
-                                  ),
-                                );
-                              }
+                            onPressed: () async {
+                              int response = await sqlDb.insertData(
+                                  sql, name, sPhone, gPhone);
+
+                              // if (_formKey.currentState!.validate()) {
+                              //   addStudent();
+                              //   ScaffoldMessenger.of(context).showSnackBar(
+                              //     const SnackBar(
+                              //       content:
+                              //           Text('تمت إضافة بيانات الطالب بنجاح!'),
+                              //     ),
+                              //   );
+                              // }
                             },
                             child: const Text('اضافه'),
                           ),
@@ -391,180 +209,15 @@ class _Sec1State extends State<Sec1> with TickerProviderStateMixin {
               ),
             ),
             // Tab 1 -----------------------------
-            Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _studentsBox1.length,
-                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
-                    itemBuilder: (context, index) {
-                      final student = _studentsBox1.getAt(index) as Student;
-                      return ListTile(
-                        title: Text(student.name),
-                        subtitle: Text(
-                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => editStudent(_studentsBox1, index, student),
-                            ),
-                            IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  deleteStudent(_studentsBox1, index);
-                                  setState(() {});
-                                }),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+            Column(),
             // Tap2-------------------------------------------------
-            Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _studentsBox2.length,
-                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
-                    itemBuilder: (context, index) {
-                      final student = _studentsBox2.getAt(index) as Student;
-                      return ListTile(
-                        title: Text(student.name),
-                        subtitle: Text(
-                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => editStudent(_studentsBox2, index, student),
-                            ),
-                            IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  deleteStudent(_studentsBox2, index);
-                                  setState(() {});
-                                }),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+            Column(),
             // Tap3--------------------------------------------
-            Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _studentsBox3.length,
-                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
-                    itemBuilder: (context, index) {
-                      final student = _studentsBox3.getAt(index) as Student;
-                      return ListTile(
-                        title: Text(student.name),
-                        subtitle: Text(
-                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => editStudent(_studentsBox3, index, student),
-                            ),
-                            IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  deleteStudent(_studentsBox3, index);
-                                  setState(() {});
-                                }),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+            Column(),
             // Tap4--------------------------
-            Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _studentsBox4.length,
-                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
-                    itemBuilder: (context, index) {
-                      final student = _studentsBox4.getAt(index) as Student;
-                      return ListTile(
-                        title: Text(student.name),
-                        subtitle: Text(
-                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => editStudent(_studentsBox4, index, student),
-                            ),
-                            IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  deleteStudent(_studentsBox4, index);
-                                  setState(() {});
-                                }),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+            Column(),
             // Tap5-------------------
-            Column(
-              children: [
-                Expanded(
-                  child: ListView.separated(
-                    itemCount: _studentsBox5.length,
-                    separatorBuilder: (context, index) => const Divider(), // Add a divider between list items
-                    itemBuilder: (context, index) {
-                      final student = _studentsBox5.getAt(index) as Student;
-                      return ListTile(
-                        title: Text(student.name),
-                        subtitle: Text(
-                          ' رقم الطالب: ${student.sphone} , رقم ولي الأمر: ${student.gphone}',
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => editStudent(_studentsBox5, index, student),
-                            ),
-                            IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () {
-                                  deleteStudent(_studentsBox5, index);
-                                  setState(() {});
-                                }),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+            Column(),
           ],
         ),
       ),
