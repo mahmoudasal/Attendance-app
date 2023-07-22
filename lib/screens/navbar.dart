@@ -13,7 +13,7 @@ class NavigatorScreen extends StatefulWidget {
 class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentIndex = 0;
   List<Widget> listOfScreens = [
-    const Sec1(),
+    Sec1(),
     Sec2(),
     Sec3(),
   ];
