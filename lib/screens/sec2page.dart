@@ -1,43 +1,31 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, annotate_overrides, unused_field, unused_local_variable
-
 import 'package:flutter/material.dart';
-import 'package:el_zareef_app/sqlDb.dart';
+import '../constants.dart';
+import 'studentTaps.dart';
+import 'inputFields.dart';
 
 class Sec2 extends StatefulWidget {
   _Sec2State createState() => _Sec2State();
 }
 
 class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _gphoneController = TextEditingController();
-  final TextEditingController _sphoneController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  FormState? _formState; // Variable to store the FormState object
-
-  late TabController _tabController;
-  List<DataRow> dataRowsTab2 = [];
   String _selectedChoice = 'sat & tue6';
-
-  static final RegExp nameRegex =
-      RegExp(r'^([\u0621-\u064A]+\s){2,}[\u0621-\u064A]+$');
-  static final RegExp phoneRegex = RegExp(r'^01[0125][0-9]{8}$');
-  SqlDb sqlDb = SqlDb();
 
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 6, vsync: this);
+    tabController = TabController(length: 6, vsync: this);
   }
 
   void _saveDataToTable(String tableName) async {
     String sql =
         "INSERT INTO '$tableName' ('name', 'sPhone', 'gPhone') VALUES (?, ?, ?)";
 
-    String name = _nameController.text;
-    String sPhone = _sphoneController.text;
-    String gPhone = _gphoneController.text;
+    String name = nameController.text;
+    String sPhone = sphoneController.text;
+    String gPhone = gphoneController.text;
 
+    // ignore: unused_local_variable
     int response = await sqlDb.insertData(sql, name, sPhone, gPhone);
   }
 
@@ -49,9 +37,9 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
     int id = rowData['id'];
 
     // Populate the form fields with the existing data
-    _nameController.text = name;
-    _sphoneController.text = sPhone;
-    _gphoneController.text = gPhone;
+    nameController.text = name;
+    sphoneController.text = sPhone;
+    gphoneController.text = gPhone;
 
     showDialog(
       context: context,
@@ -59,16 +47,16 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
         return AlertDialog(
           title: const Text('Edit Data'),
           content: Form(
-            key: _formKey,
+            key: formKey,
             child: Builder(
               // Use Builder widget to access the FormState
               builder: (BuildContext context) {
-                _formState = Form.of(context);
+                formState = Form.of(context);
                 return Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextFormField(
-                      controller: _nameController,
+                      controller: nameController,
                       decoration: const InputDecoration(labelText: 'Name'),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -78,7 +66,7 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
                       },
                     ),
                     TextFormField(
-                      controller: _sphoneController,
+                      controller: sphoneController,
                       decoration: const InputDecoration(labelText: 'sPhone'),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -88,7 +76,7 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
                       },
                     ),
                     TextFormField(
-                      controller: _gphoneController,
+                      controller: gphoneController,
                       decoration: const InputDecoration(labelText: 'gPhone'),
                       validator: (value) {
                         if (value!.isEmpty) {
@@ -111,24 +99,24 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
             ),
             TextButton(
               onPressed: () async {
-                if (_formState != null && _formState!.validate()) {
+                if (formState != null && formState!.validate()) {
                   // Save the updated data to the database
                   String sql =
                       "UPDATE $tableName SET name = ?, sPhone = ?, gPhone = ? WHERE id = ?";
                   await sqlDb.updatetData(
                       sql,
                       id,
-                      _nameController.text,
-                      _sphoneController.text,
-                      _gphoneController.text,
+                      nameController.text,
+                      sphoneController.text,
+                      gphoneController.text,
                       Navigator.pop(context));
 
                   // Refresh the data table
                   _refreshDataTable(tableName);
 
-                  _nameController.clear();
-                  _sphoneController.clear();
-                  _gphoneController.clear();
+                  nameController.clear();
+                  sphoneController.clear();
+                  gphoneController.clear();
                 }
               },
               child: const Text('Save'),
@@ -201,502 +189,116 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
     return Directionality(
-      textDirection: TextDirection.rtl,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF6F35A5),
-          centerTitle: true,
-          title: const Text(
-            'الصف الثاني الثانوي ',
-            style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
-          ),
-          bottom: TabBar(
-            controller: _tabController,
-            tabs: const [
-              Tab(text: 'تسجيل طالب جديد'),
-              Tab(text: 'sat & tue6'),
-              Tab(text: 'sat & tue7'),
-              Tab(text: 'sat & tue8'),
-              Tab(text: 'sat & tue9'),
-              Tab(text: 'sat & tue10'),
-            ],
-          ),
-        ),
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            Form(
-              key: _formKey,
-              child: SingleChildScrollView(
-                child: Center(
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 100),
-                        SizedBox(
-                          height: 70,
-                          width: 750,
-                          child: TextFormField(
-                            textAlign: TextAlign.center,
-                            controller: _nameController,
-                            decoration:
-                                const InputDecoration(hintText: 'اسم الطالب'),
-                            validator: (nameCurrentValue) {
-                              var nameNonNullValue = nameCurrentValue ?? "";
-                              if (nameNonNullValue.isEmpty) {
-                                return (" الرجاء ادخال اسم الطالب");
-                              } else if (!nameRegex
-                                  .hasMatch(nameNonNullValue)) {
-                                return ("الرجاء ادخال اسم الطالب  ثلاثي");
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          height: 70,
-                          width: 750,
-                          child: TextFormField(
-                            textAlign: TextAlign.center,
-                            controller: _sphoneController,
-                            decoration:
-                                const InputDecoration(hintText: 'رقم الطالب'),
-                            validator: (sphoneCurrentValue) {
-                              var sphoneNonNullValue = sphoneCurrentValue ?? "";
-                              if (sphoneNonNullValue.isEmpty) {
-                                return ("الرجاء ادخال رقم الطالب");
-                              } else if (!phoneRegex
-                                  .hasMatch(sphoneNonNullValue)) {
-                                return ("الرجاء ادخال رقم صحيح");
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        SizedBox(
-                          height: 70,
-                          width: 750,
-                          child: TextFormField(
-                            textAlign: TextAlign.center,
-                            controller: _gphoneController,
-                            decoration: const InputDecoration(
-                                hintText: 'رقم ولي الامر'),
-                            validator: (gphoneCurrentValue) {
-                              var gphoneNonNullValue = gphoneCurrentValue ?? "";
-                              if (gphoneNonNullValue.isEmpty) {
-                                return ("الرجاء ادخال رقم ولي الامر    ");
-                              } else if (!phoneRegex
-                                  .hasMatch(gphoneNonNullValue)) {
-                                return ("الرجاء ادخال رقم صحيح");
-                              }
-                              return null;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 25),
-                        SizedBox(
-                          height: 70,
-                          width: 550,
-                          child: DropdownButtonFormField<String>(
-                            focusColor: Colors.white,
-                            autofocus: true,
-                            value: _selectedChoice,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedChoice = newValue!;
-                              });
-                            },
-                            items: <String>[
-                              'sat & tue6',
-                              'sat & tue7',
-                              'sat & tue8',
-                              'sat & tue9',
-                              'sat & tue10',
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 500,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                switch (_selectedChoice) {
-                                  case 'sat & tue6':
-                                    _saveDataToTable('satwtue6');
-                                    break;
-                                  case 'sat & tue7':
-                                    _saveDataToTable('satwtue7');
-                                    break;
-                                  case 'sat & tue8':
-                                    _saveDataToTable('satwtue8');
-                                    break;
-                                  case 'sat & tue9':
-                                    _saveDataToTable('satwtue9');
-                                    break;
-                                  case 'sat & tue10':
-                                    _saveDataToTable('satwtue10');
-                                    break;
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content:
-                                        Text('تمت إضافة بيانات الطالب بنجاح!'),
-                                  ),
-                                );
-                                _nameController.clear();
-                                _sphoneController.clear();
-                                _gphoneController.clear();
-                              }
-                            },
-                            child: const Text('اضافه'),
-                          ),
-                        ),
-                        const SizedBox(height: 16.0),
-                      ],
-                    ),
-                  ),
-                ),
+        textDirection: TextDirection.rtl,
+        child: Scaffold(
+            appBar: AppBar(
+              backgroundColor: kPrimarybackgroundColor,
+              centerTitle: true,
+              title: const Text(
+                'الصف الثاني الثانوي ',
+                style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
               ),
+              bottom: TabBar(controller: tabController, tabs: List2G),
             ),
-            // Tab 1 -----------------------------
-            Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Read data from the database
-                      List<Map> response =
-                          await sqlDb.readData("SELECT * FROM 'satwtue6'");
-                      // Update the data table source
-                      setState(() {
-                        dataRowsTab2 = response.map<DataRow>((row) {
-                          return DataRow(cells: [
-                            DataCell(Text(row['name'].toString())),
-                            DataCell(Text(row['sPhone'].toString())),
-                            DataCell(Text(row['gPhone'].toString())),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue6');
-                                },
-                                icon:
-                                    Icon(Icons.edit), // Use the edit icon here
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue6');
-                                },
-                                icon: Icon(
-                                    Icons.delete), // Use the edit icon here
-                              ),
-                            ),
-                          ]);
-                        }).toList();
-                      });
-                    },
-                    child: const Text('عرض بيانات المجموعه'),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Expanded(
+            body: TabBarView(controller: tabController, children: [
+              Form(
+                  key: formKey,
                   child: SingleChildScrollView(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('الاسم')),
-                          DataColumn(label: Text('رقم الطالب')),
-                          DataColumn(label: Text('رقم ولي الامر')),
-                          DataColumn(label: Text('تعديل')),
-                          DataColumn(label: Text('مسح')),
-                        ],
-                        rows: dataRowsTab2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // Tap2-------------------------------------------------
-            Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Read data from the database
-                      List<Map> response =
-                          await sqlDb.readData("SELECT * FROM 'satwtue7'");
-                      // Update the data table source
-                      setState(() {
-                        dataRowsTab2 = response.map<DataRow>((row) {
-                          return DataRow(cells: [
-                            DataCell(Text(row['name'].toString())),
-                            DataCell(Text(row['sPhone'].toString())),
-                            DataCell(Text(row['gPhone'].toString())),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue7');
-                                },
-                                icon:
-                                    Icon(Icons.edit), // Use the edit icon here
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue7');
-                                },
-                                icon: Icon(
-                                    Icons.delete), // Use the edit icon here
-                              ),
-                            ),
-                          ]);
-                        }).toList();
-                      });
-                    },
-                    child: const Text('عرض بيانات المجموعه'),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('الاسم')),
-                          DataColumn(label: Text('رقم الطالب')),
-                          DataColumn(label: Text('رقم ولي الامر')),
-                          DataColumn(label: Text('تعديل')),
-                          DataColumn(label: Text('مسح')),
-                        ],
-                        rows: dataRowsTab2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // Tap3--------------------------------------------
-            Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Read data from the database
-                      List<Map> response =
-                          await sqlDb.readData("SELECT * FROM 'satwtue8'");
-                      // Update the data table source
-                      setState(() {
-                        dataRowsTab2 = response.map<DataRow>((row) {
-                          return DataRow(cells: [
-                            DataCell(Text(row['name'].toString())),
-                            DataCell(Text(row['sPhone'].toString())),
-                            DataCell(Text(row['gPhone'].toString())),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue8');
-                                },
-                                icon:
-                                    Icon(Icons.edit), // Use the edit icon here
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue8');
-                                },
-                                icon: Icon(
-                                    Icons.delete), // Use the edit icon here
-                              ),
-                            ),
-                          ]);
-                        }).toList();
-                      });
-                    },
-                    child: const Text('عرض بيانات المجموعه'),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('الاسم')),
-                          DataColumn(label: Text('رقم الطالب')),
-                          DataColumn(label: Text('رقم ولي الامر')),
-                          DataColumn(label: Text('تعديل')),
-                          DataColumn(label: Text('مسح')),
-                        ],
-                        rows: dataRowsTab2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // Tap4--------------------------
-            Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Read data from the database
-                      List<Map> response =
-                          await sqlDb.readData("SELECT * FROM 'satwtue9'");
-                      // Update the data table source
-                      setState(() {
-                        dataRowsTab2 = response.map<DataRow>((row) {
-                          return DataRow(cells: [
-                            DataCell(Text(row['name'].toString())),
-                            DataCell(Text(row['sPhone'].toString())),
-                            DataCell(Text(row['gPhone'].toString())),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue9');
-                                },
-                                icon:
-                                    Icon(Icons.edit), // Use the edit icon here
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue9');
-                                },
-                                icon: Icon(
-                                    Icons.delete), // Use the edit icon here
-                              ),
-                            ),
-                          ]);
-                        }).toList();
-                      });
-                    },
-                    child: const Text('عرض بيانات المجموعه'),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('الاسم')),
-                          DataColumn(label: Text('رقم الطالب')),
-                          DataColumn(label: Text('رقم ولي الامر')),
-                          DataColumn(label: Text('تعديل')),
-                          DataColumn(label: Text('مسح')),
-                        ],
-                        rows: dataRowsTab2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            // Tap5-------------------
-            Column(
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      // Read data from the database
-                      List<Map> response =
-                          await sqlDb.readData("SELECT * FROM 'satwtue10'");
-                      // Update the data table source
-                      setState(() {
-                        dataRowsTab2 = response.map<DataRow>((row) {
-                          return DataRow(cells: [
-                            DataCell(Text(row['name'].toString())),
-                            DataCell(Text(row['sPhone'].toString())),
-                            DataCell(Text(row['gPhone'].toString())),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue10');
-                                },
-                                icon:
-                                    Icon(Icons.edit), // Use the edit icon here
-                              ),
-                            ),
-                            DataCell(
-                              IconButton(
-                                onPressed: () {
-                                  _editData(row, 'satwtue10');
-                                },
-                                icon: Icon(
-                                    Icons.delete), // Use the edit icon here
-                              ),
-                            ),
-                          ]);
-                        }).toList();
-                      });
-                    },
-                    child: const Text('عرض بيانات المجموعه'),
-                  ),
-                ),
-                SizedBox(height: 16.0),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: DataTable(
-                        columns: const [
-                          DataColumn(label: Text('الاسم')),
-                          DataColumn(label: Text('رقم الطالب')),
-                          DataColumn(label: Text('رقم ولي الامر')),
-                          DataColumn(label: Text('تعديل')),
-                          DataColumn(label: Text('مسح')),
-                        ],
-                        rows: dataRowsTab2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+                      child: Center(
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              height: MediaQuery.of(context).size.height,
+                              child: Column(children: [
+                                const SizedBox(height: 100),
+                                CustomTextField(
+                                  controller: nameController,
+                                  hintText: 'اسم الطالب',
+                                  emptyValueError: 'الرجاء ادخال اسم الطالب',
+                                  validationError:
+                                      'الرجاء ادخال اسم الطالب ثلاثي',
+                                  regex: nameRegex,
+                                ),
+                                const SizedBox(height: 25),
+                                CustomTextField(
+                                  controller: sphoneController,
+                                  hintText: 'رقم الطالب',
+                                  emptyValueError: 'الرجاء ادخال رقم الطالب',
+                                  validationError: 'الرجاء ادخال رقم صحيح',
+                                  regex: phoneRegex,
+                                ),
+                                const SizedBox(height: 25),
+                                CustomTextField(
+                                  controller: gphoneController,
+                                  hintText: 'رقم ولي الامر',
+                                  emptyValueError: 'الرجاء ادخال رقم ولي الامر',
+                                  validationError: 'الرجاء ادخال رقم صحيح',
+                                  regex: phoneRegex,
+                                ),
+                                const SizedBox(height: 25),
+                                CustomDropdown(
+                                  selectedChoice: _selectedChoice,
+                                  items: sec2G,
+                                ),
+                                SizedBox(
+                                  width: 500,
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      if (formKey.currentState!.validate()) {
+                                        switch (_selectedChoice) {
+                                          case 'sat & tue6':
+                                            _saveDataToTable('satwtue6');
+                                            break;
+                                          case 'sat & tue7':
+                                            _saveDataToTable('satwtue7');
+                                            break;
+                                          case 'sat & tue8':
+                                            _saveDataToTable('satwtue8');
+                                            break;
+                                          case 'sat & tue9':
+                                            _saveDataToTable('satwtue9');
+                                            break;
+                                          case 'sat & tue10':
+                                            _saveDataToTable('satwtue10');
+                                            break;
+                                        }
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'تمت إضافة بيانات الطالب بنجاح!'),
+                                          ),
+                                        );
+                                        nameController.clear();
+                                        sphoneController.clear();
+                                        gphoneController.clear();
+                                      }
+                                    },
+                                    child: const Text('اضافه'),
+                                  ),
+                                ),
+                              ]))))),
+              CustomDataTable(
+                tableName: 'satwtue6',
+                editData: _editData,
+              ),
+              CustomDataTable(
+                tableName: 'satwtue7',
+                editData: _editData,
+              ),
+              CustomDataTable(
+                tableName: 'satwtue8',
+                editData: _editData,
+              ),
+              CustomDataTable(
+                tableName: 'satwtue9',
+                editData: _editData,
+              ),
+              CustomDataTable(
+                tableName: 'satwtue10',
+                editData: _editData,
+              ),
+            ])));
   }
 }
