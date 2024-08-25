@@ -33,8 +33,17 @@ To run this project locally, follow these steps:
 1. **Clone the repository**:
    ```bash
    git clone https://github.com/yourusername/attendance-app.git
+   
+2. **Navigate to the project directory:**:
+   ```bash
    cd attendance-app
+   
+3. **Install dependencies:**:
+   ```bash
    flutter pub get
+   
+4. **Run the application:**:
+   ```bash
    flutter run
 
 ## Contributions
