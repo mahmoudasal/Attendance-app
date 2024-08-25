@@ -1,6 +1,6 @@
-# el_zareef_app
+# Student attendance system
 
-Attendance App
+
 
 ## Getting Started
 
