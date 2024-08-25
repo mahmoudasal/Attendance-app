@@ -1,6 +1,7 @@
 # Student Attendance System
 
-Overview
+##Overview
+
 The Student Attendance System is a comprehensive mobile & desktop application built using Flutter. It is designed to assist educators in tracking student attendance efficiently. The app offers a user-friendly interface, real-time data handling, and the ability to store, update, and manage student records with ease.
 
 ## Features
