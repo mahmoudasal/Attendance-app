@@ -56,7 +56,8 @@ class _CustomDataTableState extends State<CustomDataTable> {
                 }).toList();
               });
             },
-            child: const Text('عرض بيانات المجموعه'),
+            child: const Text('عرض بيانات المجموعه',
+                style: TextStyle(color: Colors.white)),
           ),
         ),
         SizedBox(height: 16.0),

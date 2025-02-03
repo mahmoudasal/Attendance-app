@@ -200,7 +200,12 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
                 'الصف الثاني الثانوي ',
                 style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
               ),
-              bottom: TabBar(controller: tabController, tabs: List2G),
+              bottom: TabBar(
+                controller: tabController,
+                tabs: List2G,
+                labelColor: Colors.white,
+                unselectedLabelColor: const Color.fromARGB(255, 165, 165, 165),
+              ),
             ),
             body: TabBarView(controller: tabController, children: [
               Form(
@@ -275,7 +280,10 @@ class _Sec2State extends State<Sec2> with TickerProviderStateMixin {
                                         gphoneController.clear();
                                       }
                                     },
-                                    child: const Text('اضافه'),
+                                    child: const Text(
+                                      'اضافه',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                   ),
                                 ),
                               ]))))),

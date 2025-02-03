@@ -201,7 +201,12 @@ class _Sec3State extends State<Sec3> with TickerProviderStateMixin {
             'الصف الثالث الثانوي ',
             style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
           ),
-          bottom: TabBar(controller: tabController, tabs: List3G),
+          bottom: TabBar(
+            controller: tabController,
+            tabs: List3G,
+            labelColor: Colors.white,
+            unselectedLabelColor: const Color.fromARGB(255, 165, 165, 165),
+          ),
         ),
         body: TabBarView(
           controller: tabController,
@@ -277,9 +282,12 @@ class _Sec3State extends State<Sec3> with TickerProviderStateMixin {
                                 gphoneController.clear();
                               }
                             },
-                            child: const Text('اضافه'),
+                            child: const Text(
+                              'اضافه',
+                              style: TextStyle(color: Colors.white),
+                            ),
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),

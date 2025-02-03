@@ -59,24 +59,38 @@ class _CustomDropdownState extends State<CustomDropdown> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 70,
-      width: 550,
-      child: DropdownButtonFormField<String>(
-        focusColor: Colors.white,
-        autofocus: true,
-        value: selectedChoice,
-        onChanged: (String? newValue) {
-          setState(() {
-            selectedChoice = newValue!;
-          });
-        },
-        items: widget.items.map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        }).toList(),
-      ),
-    );
+        height: 70,
+        width: 550,
+        child: InputDecorator(
+          decoration: InputDecoration(
+
+              // contentPadding: EdgeInsets.all(10),
+              ),
+          child: Theme(
+            // <- Here
+            data: Theme.of(context).copyWith(
+              // <- Here
+              splashColor: Colors.transparent, // <- Here
+              highlightColor: Colors.transparent, // <- Here
+              hoverColor: Colors.transparent, // <- Here
+            ),
+            child: DropdownButtonFormField<String>(
+              focusColor: Colors.white,
+              autofocus: true,
+              value: selectedChoice,
+              onChanged: (String? newValue) {
+                setState(() {
+                  selectedChoice = newValue!;
+                });
+              },
+              items: widget.items.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
+        ));
   }
 }
